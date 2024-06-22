@@ -1,0 +1,179 @@
+
+
+　　　　IISAT UNIVERSITY
+
+
+Name			 Zohaib Danish
+Roll No 			311
+Section 			ADP CS
+
+
+To test your understanding of various model evaluation techniques used in machine learning, including accuracy metrics, confusion matrix interpretation, ROC/AUC, and cross-validation.
+
+
+Accuracy Metrics Calculation
+
+Train a Classification Model and Calculate Metrics
+
+Code :
+
+import pandas as pd
+
+from sklearn.model_selection import train_test_split
+
+from sklearn.linear_model import LogisticRegression
+
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+# Load the dataset (Titanic dataset for example)
+df = pd.read_csv('/path/to/titanic.csv')
+
+# Preprocessing (simplified for illustration)
+df.drop(columns=['Cabin'], inplace=True)
+df.dropna(subset=['Embarked'], inplace=True)
+df['Age'].fillna(df['Age'].median(), inplace=True)
+df.drop(columns=['Name', 'Ticket'], inplace=True)
+df['Sex'] = df['Sex'].map({'male': 0, 'female': 1})
+df['Embarked'] = df['Embarked'].map({'S': 0, 'C': 1, 'Q': 2})
+df.dropna(inplace=True)
+# Features and target
+X = df.drop(columns=['Survived'])
+y = df['Survived']
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Train a logistic regression model
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+# Predictions
+y_pred = model.predict(X_test)
+# Calculate metrics
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred)
+accuracy, precision, recall, f1
+
+
+What are the calculated values for accuracy, precision, recall, and F1-score? 
+What do these metrics tell you about your model's performance?
+
+Example values might be:
+
+Accuracy :	0.82 
+Precision : 	0.78
+Recall :	 	0.75
+F1-Score : 	0.76
+
+Interpretation :
+Accuracy :	82% of predictions were correct.
+Precision :	78% of predicted survivors actually survived.
+Recall :		75% of actual survivors were correctly predicted.
+F1-Score :	The harmonic mean of precision and recall, providing a balanced measure of model performance.
+
+Confusion Matrix Interpretation
+
+Create a Confusion Matrix
+
+Code : 
+
+from sklearn.metrics import confusion_matrix
+
+# Create confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+conf_matrix
+`
+Question: 
+Present the confusion matrix and explain what each value represents. How does the confusion matrix help in understanding the model's performance?
+
+Example confusion matrix:
+
+| Predicted  Not  Survived  | Predicted Survived |
+|-----------|-----------------------|--------------------|
+| Not Survived | 91             | 14           	   |
+| Survived        | 20             | 54                   |
+
+Interpretation :
+
+True Negatives (TN) : 	91 - Actual not survived and predicted not survived.
+False Positives (FP) : 	14 - Actual not survived but predicted survived.
+False Negatives (FN) : 	20 - Actual survived but predicted not survived.
+True Positives (TP) : 	54 - Actual survived and predicted survived.
+
+The confusion matrix provides a detailed breakdown of prediction outcomes, helping to understand where the model makes errors (false positives and false negatives).
+
+ROC/AUC Calculation
+
+Plot the ROC curve and calculate the AUC
+
+Code : 
+
+from sklearn.metrics import roc_curve, roc_auc_score
+import matplotlib.pyplot as plt
+
+# Calculate probabilities for ROC curve
+y_probs = model.predict_proba(X_test)[:, 1]
+
+# Calculate ROC curve
+fpr, tpr, thresholds = roc_curve(y_test, y_probs)
+
+# Calculate AUC
+auc = roc_auc_score(y_test, y_probs)
+
+# Plot ROC curve
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, label=f'AUC = {auc:.2f}')
+plt.plot([0, 1], [0, 1], 'k--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.legend()
+plt.show()
+
+Question :  What does the ROC curve look like? What is the AUC value? How do these metrics help in evaluating your model's performance?
+
+Example ROC curve:
+
+ROC Curve : 
+It plots the true positive rate (Sensitivity) against the false positive rate (1 - Specificity) across various thresholds.
+AUC: 
+Area Under the Curve. AUC quantifies the overall performance of the model. Higher AUC indicates better discrimination between positive and negative classes.
+
+Cross-Validation Reporting
+
+Perform k-Fold Cross-Validation
+
+Code :
+
+from sklearn.model_selection import cross_val_score
+
+# Perform 5-fold cross-validation
+cv_scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')
+
+# Calculate mean and standard deviation of accuracy
+cv_mean = cv_scores.mean()
+cv_std = cv_scores.std()
+
+cv_mean, cv_std
+
+What are the mean and standard deviation of the cross-validation accuracy? Why is cross-validation important in model evaluation?
+
+Example cross-validation results:
+
+Mean Accuracy :	 0.80
+Standard Deviation : 	 0.02
+
+Explanation :
+
+Mean Accuracy :  
+
+Average accuracy across all folds. Provides a more robust estimate of model performance.
+
+Standard Deviation :
+
+Measures the variability of accuracy across different folds. Lower SD indicates more consistent performance.
+
+Importance of Cross-Validation :
+
+Validates model performance on different subsets of data, reducing bias in evaluation.
+Helps in identifying overfitting or underfitting by providing a more realistic assessment of model performance.
+
